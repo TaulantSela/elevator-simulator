@@ -353,7 +353,7 @@ function App() {
     <div className="app">
       <div className="elevator-card">
         <header className="elevator-header">
-          <h1 className="title">Elevator Controller</h1>
+          <h1 className="title">Elevator Simulator</h1>
           <p className="status">{statusMessage}</p>
           <p className="status">Current floor: {currentFloor}</p>
         </header>
