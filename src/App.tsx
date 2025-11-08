@@ -218,7 +218,7 @@ function App() {
     }
 
     return null;
-  }, [cabinRequests, hallDownRequests, hallUpRequests]);
+  }, []);
 
   const moveToStop = useCallback(
     async (targetFloor: number, travelDirection: Direction) => {
@@ -349,16 +349,6 @@ function App() {
     [addCabinRequest]
   );
 
-  const handleManualDoorClose = useCallback(async () => {
-    if (doorStateRef.current === null) {
-      setStatusMessage("Doors already closed");
-      return;
-    }
-
-    await closeDoors(true);
-    setStatusMessage("Idle");
-  }, [closeDoors]);
-
   return (
     <div className="app">
       <div className="elevator-card">
@@ -371,7 +361,7 @@ function App() {
         <div className="instructions">
           <p><strong>How to use:</strong></p>
           <ol>
-            <li>Press ↑ or ↓ on your floor; if the car is already there, the doors open.</li>
+            <li>Press ↑ or ↓ on your floor; if the elevator is already there, the doors open.</li>
             <li>When the status shows <q>Doors open</q>, tap your destination inside.</li>
             <li>The elevator serves active arrows in its travel direction before turning around.</li>
           </ol>
