@@ -2,6 +2,8 @@
 
 A 7-floor elevator controller simulator built with React. Use it to visualize hall-call priorities, cabin selections, and dynamic door behavior.
 
+https://elevator-simulator-system.vercel.app/
+
 ## Getting Started
 
 ```bash
