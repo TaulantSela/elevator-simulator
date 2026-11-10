@@ -183,6 +183,90 @@
   color: var(--ink-soft);
 }
 
+/* ---------- Toolbar: pause and speed ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 1.25rem 2rem 0;
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 34px;
+  padding: 0 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toolbar-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.toolbar-button:hover {
+  border-color: rgba(226, 232, 240, 0.5);
+}
+
+.toolbar-button.paused {
+  border-color: var(--warm);
+  color: #fed7aa;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.segmented-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.segmented-options {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(2, 6, 23, 0.55);
+}
+
+.segmented-options button {
+  height: 26px;
+  min-width: 40px;
+  padding: 0 0.65rem;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented-options button:hover {
+  color: var(--ink);
+}
+
+.segmented-options button[aria-pressed="true"] {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.55);
+}
+
 /* ---------- Body: building + cabin panel ---------- */
 
 .elevator-body {
@@ -509,6 +593,11 @@ button:focus-visible {
   .instructions {
     padding: 1rem 1rem 0 2.2rem;
     font-size: 0.88rem;
+  }
+
+  .toolbar {
+    padding: 1rem 1rem 0;
+    gap: 0.6rem 1rem;
   }
 
   .elevator-body {

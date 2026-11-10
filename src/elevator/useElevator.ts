@@ -11,17 +11,24 @@ import {
   step,
 } from "./engine";
 
+export type Speed = 1 | 2 | 4;
+
 // A frame longer than this (a background tab, a debugger pause) is treated as
 // this long, so the car pauses instead of jumping several floors at once.
 const MAX_FRAME_MS = 100;
 
 /**
  * Runs the elevator engine on animation frames. The loop only runs while the
- * car has something to do, and stops once it settles.
+ * car has something to do and the simulation isn't paused. Presses still
+ * register while paused.
  */
 export function useElevator(options?: Parameters<typeof createElevator>[0]) {
   const [state, setState] = useState(() => createElevator(options));
+  const [speed, setSpeedState] = useState<Speed>(1);
+  const [paused, setPausedState] = useState(false);
   const stateRef = useRef(state);
+  const speedRef = useRef<Speed>(1);
+  const pausedRef = useRef(false);
   const frameRef = useRef<number | null>(null);
   const lastFrameRef = useRef<number | null>(null);
 
@@ -31,11 +38,17 @@ export function useElevator(options?: Parameters<typeof createElevator>[0]) {
     setState(next);
   }, []);
 
+  const stopLoop = useCallback(() => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+    lastFrameRef.current = null;
+  }, []);
+
   const tick = useCallback(
     (now: number) => {
-      const dt = lastFrameRef.current === null ? 0 : Math.min(now - lastFrameRef.current, MAX_FRAME_MS);
+      const frame = lastFrameRef.current === null ? 0 : Math.min(now - lastFrameRef.current, MAX_FRAME_MS);
       lastFrameRef.current = now;
-      commit(step(stateRef.current, dt));
+      commit(step(stateRef.current, frame * speedRef.current));
 
       if (isSettled(stateRef.current)) {
         frameRef.current = null;
@@ -48,17 +61,10 @@ export function useElevator(options?: Parameters<typeof createElevator>[0]) {
   );
 
   const wake = useCallback(() => {
-    if (frameRef.current === null) frameRef.current = requestAnimationFrame(tick);
+    if (!pausedRef.current && frameRef.current === null) frameRef.current = requestAnimationFrame(tick);
   }, [tick]);
 
-  useEffect(
-    () => () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-      lastFrameRef.current = null;
-    },
-    []
-  );
+  useEffect(() => stopLoop, [stopLoop]);
 
   const press = useCallback(
     (apply: (current: ElevatorState) => ElevatorState) => {
@@ -76,5 +82,20 @@ export function useElevator(options?: Parameters<typeof createElevator>[0]) {
   const openDoors = useCallback(() => press(pressDoorOpen), [press]);
   const closeDoors = useCallback(() => press(pressDoorClose), [press]);
 
-  return { state, callElevator, selectFloor, openDoors, closeDoors };
+  const setSpeed = useCallback((next: Speed) => {
+    speedRef.current = next;
+    setSpeedState(next);
+  }, []);
+
+  const setPaused = useCallback(
+    (next: boolean) => {
+      pausedRef.current = next;
+      setPausedState(next);
+      if (next) stopLoop();
+      else wake();
+    },
+    [stopLoop, wake]
+  );
+
+  return { state, callElevator, selectFloor, openDoors, closeDoors, speed, setSpeed, paused, setPaused };
 }

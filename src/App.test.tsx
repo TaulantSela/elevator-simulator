@@ -55,3 +55,27 @@ test("the close button skips the rest of the dwell", () => {
   });
   expect(screen.getByText("Waiting at floor 1")).toBeInTheDocument();
 });
+
+test("2× speed halves the trip, and pausing freezes the car", () => {
+  render(<App />);
+  fireEvent.click(screen.getByRole("button", { name: "2×" }));
+  fireEvent.click(screen.getByRole("button", { name: "Go to floor 5" }));
+
+  act(() => {
+    jest.advanceTimersByTime((4 * 1500 + 1100) / 2);
+  });
+  expect(screen.getByText("Doors open at floor 5")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Go to floor 2" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause" }));
+  act(() => {
+    jest.advanceTimersByTime(60_000);
+  });
+  expect(screen.getByText("Paused · Doors open at floor 5")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+  act(() => {
+    jest.advanceTimersByTime(60_000);
+  });
+  expect(screen.getByText("Waiting at floor 2")).toBeInTheDocument();
+});
