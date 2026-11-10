@@ -5,7 +5,10 @@ import {
   doorOpenness,
   ElevatorState,
   isSettled,
+  plannedStops,
   pressCabin,
+  pressDoorClose,
+  pressDoorOpen,
   pressHall,
   step,
 } from "./engine";
@@ -178,6 +181,86 @@ describe("doors", () => {
     expect(state.phase).toBe("doorsOpen");
     state = step(pressCabin(state, 1), 2000); // dwell restarts, so still open
     expect(state.phase).toBe("doorsOpen");
+  });
+});
+
+describe("door buttons", () => {
+  const openAtFloor1 = () => step(pressHall(createElevator(), 1, "up"), 2000); // fully open, dwell running
+
+  test("close skips the rest of the dwell", () => {
+    const run = simulate([[0, pressDoorClose]], openAtFloor1());
+    expect(run.state.phase).toBe("idle");
+    expect(run.time).toBeLessThanOrEqual(1000 + TICK);
+  });
+
+  test("close turns opening doors around from where they are", () => {
+    const halfOpen = step(pressHall(createElevator(), 1, "up"), 500);
+    const closing = pressDoorClose(halfOpen);
+    expect(closing.phase).toBe("doorsClosing");
+    expect(doorOpenness(closing)).toBeCloseTo(doorOpenness(halfOpen));
+  });
+
+  test("open reopens closing doors from where they are", () => {
+    const closing = step(openAtFloor1(), 1500 + 300); // 1000ms into the dwell, so 300ms into closing
+    expect(closing.phase).toBe("doorsClosing");
+    const reopened = pressDoorOpen(closing);
+    expect(reopened.phase).toBe("doorsOpening");
+    expect(doorOpenness(reopened)).toBeCloseTo(doorOpenness(closing));
+  });
+
+  test("open holds the doors while they are open", () => {
+    const held = step(pressDoorOpen(openAtFloor1()), 2000);
+    expect(held.phase).toBe("doorsOpen");
+  });
+
+  test("open works while stopped with no calls, and does nothing while moving", () => {
+    const opened = pressDoorOpen(createElevator());
+    expect(opened.phase).toBe("doorsOpening");
+    expect(isSettled(step(opened, 10_000))).toBe(true);
+
+    const moving = step(pressCabin(createElevator(), 4), 500);
+    expect(pressDoorOpen(moving)).toBe(moving);
+    expect(pressDoorClose(moving)).toBe(moving);
+  });
+});
+
+describe("planned stops", () => {
+  test("list the stops in the order the car will make them", () => {
+    let state = pressCabin(pressCabin(createElevator(), 3), 6);
+    state = step(state, 3000 + 500); // doors opening at 3
+    state = pressCabin(state, 2);
+    expect(plannedStops(state)).toEqual([
+      { floor: 6, hall: null },
+      { floor: 2, hall: null },
+    ]);
+  });
+
+  test("mark the hall arrow each stop answers", () => {
+    let state = createElevator();
+    state = pressHall(state, 4, "up");
+    state = pressHall(state, 4, "down");
+    state = pressCabin(state, 6);
+    expect(plannedStops(state)).toEqual([
+      { floor: 4, hall: "up" },
+      { floor: 6, hall: null },
+      { floor: 4, hall: "down" },
+    ]);
+  });
+
+  test("match what the car actually does", () => {
+    let start = createElevator({ startFloor: 3 });
+    start = pressHall(start, 5, "down");
+    start = pressHall(start, 2, "down");
+    start = pressCabin(start, 7);
+    start = pressHall(start, 6, "up");
+
+    const predicted = plannedStops(start).map((stop) => stop.floor);
+    expect(predicted).toEqual([2, 6, 7, 5]);
+    expect(floors(simulate([], start).stops)).toEqual(predicted);
+  });
+
+  test("are empty when there is nothing to do", () => {
+    expect(plannedStops(createElevator())).toEqual([]);
   });
 });
 

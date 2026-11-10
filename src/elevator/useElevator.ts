@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createElevator, Direction, ElevatorState, isSettled, pressCabin, pressHall, step } from "./engine";
+import {
+  createElevator,
+  Direction,
+  ElevatorState,
+  isSettled,
+  pressCabin,
+  pressDoorClose,
+  pressDoorOpen,
+  pressHall,
+  step,
+} from "./engine";
 
 // A frame longer than this (a background tab, a debugger pause) is treated as
 // this long, so the car pauses instead of jumping several floors at once.
@@ -50,21 +60,21 @@ export function useElevator(options?: Parameters<typeof createElevator>[0]) {
     []
   );
 
+  const press = useCallback(
+    (apply: (current: ElevatorState) => ElevatorState) => {
+      commit(apply(stateRef.current));
+      wake();
+    },
+    [commit, wake]
+  );
+
   const callElevator = useCallback(
-    (floor: number, direction: Direction) => {
-      commit(pressHall(stateRef.current, floor, direction));
-      wake();
-    },
-    [commit, wake]
+    (floor: number, direction: Direction) => press((current) => pressHall(current, floor, direction)),
+    [press]
   );
+  const selectFloor = useCallback((floor: number) => press((current) => pressCabin(current, floor)), [press]);
+  const openDoors = useCallback(() => press(pressDoorOpen), [press]);
+  const closeDoors = useCallback(() => press(pressDoorClose), [press]);
 
-  const selectFloor = useCallback(
-    (floor: number) => {
-      commit(pressCabin(stateRef.current, floor));
-      wake();
-    },
-    [commit, wake]
-  );
-
-  return { state, callElevator, selectFloor };
+  return { state, callElevator, selectFloor, openDoors, closeDoors };
 }

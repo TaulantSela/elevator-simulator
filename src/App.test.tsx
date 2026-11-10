@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import App from "./App";
 
 beforeEach(() => {
@@ -29,4 +29,29 @@ test("a down call from above brings the car and opens its doors", () => {
   });
   expect(screen.getByText("Doors open at floor 5")).toBeInTheDocument();
   expect(call).toHaveAttribute("aria-pressed", "false");
+});
+
+test("lists the planned stops in order", () => {
+  render(<App />);
+  fireEvent.click(screen.getByRole("button", { name: "Go to floor 6" }));
+  fireEvent.click(screen.getByRole("button", { name: "Call elevator down from floor 3" }));
+  fireEvent.click(screen.getByRole("button", { name: "Go to floor 4" }));
+
+  const stops = within(screen.getByRole("list", { name: "Next stops" })).getAllByRole("listitem");
+  expect(stops.map((stop) => stop.textContent)).toEqual(["4", "6", "3↓ down"]);
+});
+
+test("the close button skips the rest of the dwell", () => {
+  render(<App />);
+  fireEvent.click(screen.getByRole("button", { name: "Call elevator up from floor 1" }));
+  act(() => {
+    jest.advanceTimersByTime(1500); // doors fully open, dwell running
+  });
+  expect(screen.getByText("Doors open at floor 1")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Close doors" }));
+  act(() => {
+    jest.advanceTimersByTime(1100);
+  });
+  expect(screen.getByText("Waiting at floor 1")).toBeInTheDocument();
 });
