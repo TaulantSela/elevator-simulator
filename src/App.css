@@ -174,13 +174,51 @@
 }
 
 .instructions {
-  margin: 0;
-  padding: 1.25rem 2rem 0 3.2rem;
-  display: grid;
-  gap: 0.35rem;
+  padding: 1.25rem 2rem 0;
   font-size: 0.93rem;
   line-height: 1.5;
   color: var(--ink-soft);
+}
+
+.instructions summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.instructions summary::-webkit-details-marker {
+  display: none;
+}
+
+.instructions summary::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.instructions[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.instructions summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.instructions ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.4rem;
+  display: grid;
+  gap: 0.35rem;
 }
 
 /* ---------- Toolbar: pause and speed ---------- */
@@ -591,7 +629,7 @@ button:focus-visible {
   }
 
   .instructions {
-    padding: 1rem 1rem 0 2.2rem;
+    padding: 1rem 1rem 0;
     font-size: 0.88rem;
   }
 
