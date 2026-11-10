@@ -26,12 +26,19 @@ The optimized bundle is emitted to `build/` and is ready for hosting (e.g. Verce
 - Collective-control dispatcher (LOOK): the car answers every call in its direction of travel, then turns around at the last one
 - Hall arrows are answered per direction, so a down call isn't cleared by a car heading up
 - Animated shaft with a moving car and sliding doors, plus a lobby-style floor and direction indicator
-- Doors close on their own and reopen for a same-direction call while closing
+- "Next stops" shows the order the car will serve its calls in
+- Door open and close buttons; doors also close on their own and reopen for a same-direction call
+- Passenger mode: people arrive at random floors (light or busy traffic), ride to their destination, and the stats track deliveries, average wait, average trip and the longest wait
+- Pause and 1× / 2× / 4× speed
 - Works on phones: the status stays pinned at the top and the cabin panel at the bottom
 
 ## How it works
 
-The engine in `src/elevator/engine.ts` is a pure state machine: `step(state, dt)` advances the simulation by `dt` milliseconds and `pressHall` / `pressCabin` register calls. The `useElevator` hook drives it with `requestAnimationFrame` only while the car has work. Because the engine owns no timers, the tests in `src/elevator/engine.test.ts` run whole scenarios in fixed steps.
+- `src/elevator/engine.ts` is the elevator as a pure state machine: `step(state, dt)` advances it by `dt` milliseconds, and `pressHall`, `pressCabin`, `pressDoorOpen` and `pressDoorClose` register presses. `plannedStops` runs it forward on a copy to predict the stops.
+- `src/elevator/passengers.ts` layers simulated passengers on top, also as pure functions. Arrivals come from a seeded random number generator kept in the state, so a run is reproducible from its seed.
+- `src/elevator/useSimulation.ts` drives both with `requestAnimationFrame`, only while something is happening, scaled by the speed setting.
+
+Because nothing in the engine owns a timer, the tests run whole scenarios in fixed steps, including twenty simulated minutes of busy traffic.
 
 ## Scripts
 

@@ -95,6 +95,42 @@ export function pressCabin(state: ElevatorState, floor: number): ElevatorState {
   return { ...state, cabinCalls: addFloor(state.cabinCalls, floor) };
 }
 
+/** Turns closing doors around from wherever they are. */
+function reopen(state: ElevatorState): ElevatorState {
+  const { timing } = state;
+  const openness = 1 - state.elapsed / timing.doorClosing;
+  return { ...state, phase: "doorsOpening", elapsed: openness * timing.doorOpening };
+}
+
+/** The cabin's door-open button: opens the doors while stopped, reopens them while closing, holds them while open. */
+export function pressDoorOpen(state: ElevatorState): ElevatorState {
+  switch (state.phase) {
+    case "idle":
+      return { ...state, phase: "doorsOpening", elapsed: 0 };
+    case "doorsOpen":
+      return { ...state, elapsed: 0 };
+    case "doorsClosing":
+      return reopen(state);
+    default:
+      return state;
+  }
+}
+
+/** The cabin's door-close button: skips the rest of the dwell. */
+export function pressDoorClose(state: ElevatorState): ElevatorState {
+  const { timing } = state;
+  switch (state.phase) {
+    case "doorsOpen":
+      return { ...state, phase: "doorsClosing", elapsed: 0 };
+    case "doorsOpening": {
+      const openness = state.elapsed / timing.doorOpening;
+      return { ...state, phase: "doorsClosing", elapsed: (1 - openness) * timing.doorClosing };
+    }
+    default:
+      return state;
+  }
+}
+
 export function hasCalls(state: ElevatorState) {
   return state.cabinCalls.length > 0 || state.hallCalls.up.length > 0 || state.hallCalls.down.length > 0;
 }
@@ -183,12 +219,8 @@ function holdDoors(state: ElevatorState): ElevatorState {
   if (!wanted) return state;
 
   const served = serve(state, direction);
-  const { timing } = state;
   if (state.phase === "doorsOpen") return { ...served, elapsed: 0 };
-  if (state.phase === "doorsClosing") {
-    const openness = 1 - state.elapsed / timing.doorClosing;
-    return { ...served, phase: "doorsOpening", elapsed: openness * timing.doorOpening };
-  }
+  if (state.phase === "doorsClosing") return reopen(served);
   return served;
 }
 
@@ -305,6 +337,37 @@ export function nextStop(state: ElevatorState): number | null {
     if (shouldStopAt(state, floor, travel)) return floor;
   }
   return null;
+}
+
+export type PlannedStop = {
+  floor: number;
+  /** The hall arrow this stop answers, or null for a cabin-only stop. */
+  hall: Direction | null;
+};
+
+/** True when `after` begins a new stop that `before` wasn't already making. */
+function startsStop(before: ElevatorState, after: ElevatorState) {
+  return after.phase === "doorsOpening" && (before.phase !== "doorsOpening" && before.phase !== "doorsOpen");
+}
+
+/**
+ * The stops the car will make for the calls registered so far, in order. It
+ * runs the engine forward one phase at a time, so it can't disagree with it.
+ */
+export function plannedStops(state: ElevatorState, limit = 12): PlannedStop[] {
+  const stops: PlannedStop[] = [];
+  let current = state;
+  for (let pass = 0; pass < 500 && stops.length < limit && !isSettled(current); pass += 1) {
+    const before = current;
+    const rest = current.phase === "idle" ? 0 : phaseDuration(current) - current.elapsed;
+    current = step(current, rest);
+    if (startsStop(before, current)) {
+      const { floor, direction } = current;
+      const hall = direction !== null && before.hallCalls[direction].includes(floor) ? direction : null;
+      stops.push({ floor, hall });
+    }
+  }
+  return stops;
 }
 
 export function describe(state: ElevatorState): string {

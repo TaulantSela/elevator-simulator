@@ -101,36 +101,227 @@
   text-shadow: 0 0 12px var(--accent-glow);
 }
 
+.readout-text {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 13rem;
+}
+
 .status {
   margin: 0;
-  min-width: 11rem;
   font-size: 0.98rem;
   color: var(--ink-soft);
 }
 
-.instructions {
+.plan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+
+.plan-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.plan-stops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
   margin: 0;
-  padding: 1.25rem 2rem 0 3.2rem;
-  display: grid;
-  gap: 0.35rem;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-stops li {
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-stops li.hall.up {
+  background: rgba(56, 189, 248, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.6);
+}
+
+.plan-stops li.hall.down {
+  background: rgba(251, 146, 60, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.6);
+}
+
+.plan-stops li.more {
+  background: none;
+  color: var(--ink-faint);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.instructions {
+  padding: 1.25rem 2rem 0;
   font-size: 0.93rem;
   line-height: 1.5;
   color: var(--ink-soft);
 }
 
+.instructions summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.instructions summary::-webkit-details-marker {
+  display: none;
+}
+
+.instructions summary::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.instructions[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.instructions summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.instructions ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.4rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+/* ---------- Toolbar: pause and speed ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 1.25rem 2rem 0;
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 34px;
+  padding: 0 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toolbar-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.toolbar-button:hover {
+  border-color: rgba(226, 232, 240, 0.5);
+}
+
+.toolbar-button.paused {
+  border-color: var(--warm);
+  color: #fed7aa;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.segmented-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.segmented-options {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(2, 6, 23, 0.55);
+}
+
+.segmented-options button {
+  height: 26px;
+  min-width: 40px;
+  padding: 0 0.65rem;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented-options button:hover {
+  color: var(--ink);
+}
+
+.segmented-options button[aria-pressed="true"] {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.55);
+}
+
 /* ---------- Body: building + cabin panel ---------- */
 
 .elevator-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 340px) auto;
+  grid-template-areas:
+    "building cabin"
+    "building stats";
+  grid-template-rows: auto 1fr;
+  align-items: start;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.5rem 2rem;
   padding: 1.75rem 2rem 2rem;
 }
 
 .building {
-  flex: 0 1 340px;
+  grid-area: building;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--shaft-w);
   grid-auto-rows: var(--row-h);
@@ -142,7 +333,6 @@
   grid-column: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 0.6rem 0 1.1rem;
   border-radius: 16px;
   background: linear-gradient(135deg, var(--surface), rgba(30, 64, 175, 0.55));
@@ -166,7 +356,71 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* People waiting at a landing, and riding in the car. */
+.waiting {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-left: 0.7rem;
+}
+
+.person {
+  position: relative;
+  width: 6px;
+  height: 9px;
+  margin-top: 6px;
+  border-radius: 3px 3px 1px 1px;
+  background: currentColor;
+}
+
+.person::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 0.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.person.up {
+  color: var(--accent);
+}
+
+.person.down {
+  color: var(--warm);
+}
+
+.figures-more {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
+.riders {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.riders .person {
+  color: #1e293b;
+}
+
+.riders .figures-more {
+  font-size: 0.6rem;
+  color: #1e293b;
+}
+
 .hall-controls {
+  margin-left: auto;
   display: grid;
   grid-template-columns: repeat(2, 44px);
   gap: 0.45rem;
@@ -295,7 +549,7 @@
 /* ---------- Cabin panel ---------- */
 
 .cabin-panel {
-  flex: 0 0 auto;
+  grid-area: cabin;
   display: grid;
   gap: 1rem;
   justify-items: center;
@@ -354,6 +608,94 @@
   box-shadow: 0 0 18px var(--accent-glow);
 }
 
+.door-buttons {
+  display: flex;
+  gap: 0.8rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.door-button {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  background: radial-gradient(circle at 35% 30%, #334155, #0f172a 75%);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.door-button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.door-button:hover {
+  color: var(--ink);
+  border-color: rgba(226, 232, 240, 0.7);
+}
+
+.door-button:active {
+  transform: scale(0.94);
+}
+
+/* ---------- Passenger stats ---------- */
+
+.traffic-stats {
+  grid-area: stats;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.text-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem 1.2rem;
+  margin: 0;
+}
+
+.stats-grid dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.stats-grid dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 button {
   font-family: inherit;
 }
@@ -366,6 +708,7 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .hall-button,
   .panel-button,
+  .door-button,
   .floor-row {
     transition: none;
   }
@@ -401,16 +744,22 @@ button:focus-visible {
     font-size: 1.2rem;
   }
 
-  .status {
+  .readout-text {
     min-width: 0;
   }
 
   .instructions {
-    padding: 1rem 1rem 0 2.2rem;
+    padding: 1rem 1rem 0;
     font-size: 0.88rem;
   }
 
+  .toolbar {
+    padding: 1rem 1rem 0;
+    gap: 0.6rem 1rem;
+  }
+
   .elevator-body {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 1.25rem;
@@ -419,6 +768,18 @@ button:focus-visible {
 
   .building {
     flex: none;
+  }
+
+  .traffic-stats {
+    order: 2;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cabin-panel {
+    order: 3;
   }
 
   .cabin-panel {
@@ -433,10 +794,38 @@ button:focus-visible {
     background: rgba(15, 23, 42, 0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "open title close"
+      "grid grid grid";
+    align-items: center;
+  }
+
+  .panel-title {
+    grid-area: title;
+  }
+
+  .door-buttons {
+    display: contents;
+  }
+
+  .door-button {
+    width: 48px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .door-button.open {
+    grid-area: open;
+  }
+
+  .door-button.close {
+    grid-area: close;
   }
 
   /* One row, ascending, so the whole panel fits at the bottom of the screen. */
   .panel-grid {
+    grid-area: grid;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
