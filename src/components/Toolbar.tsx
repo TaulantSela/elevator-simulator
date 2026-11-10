@@ -1,5 +1,6 @@
 import React from "react";
-import { Speed } from "../elevator/useElevator";
+import { TrafficLevel } from "../elevator/passengers";
+import { Speed } from "../elevator/useSimulation";
 import { Segmented } from "./Segmented";
 
 type Props = {
@@ -7,6 +8,8 @@ type Props = {
   onPausedChange: (paused: boolean) => void;
   speed: Speed;
   onSpeedChange: (speed: Speed) => void;
+  traffic: TrafficLevel;
+  onTrafficChange: (traffic: TrafficLevel) => void;
 };
 
 const SPEEDS: { value: Speed; label: string }[] = [
@@ -15,7 +18,13 @@ const SPEEDS: { value: Speed; label: string }[] = [
   { value: 4, label: "4×" },
 ];
 
-export function Toolbar({ paused, onPausedChange, speed, onSpeedChange }: Props) {
+const TRAFFIC: { value: TrafficLevel; label: string; title?: string }[] = [
+  { value: "off", label: "Off" },
+  { value: "light", label: "Light", title: "About 4 people a minute" },
+  { value: "busy", label: "Busy", title: "About 10 people a minute" },
+];
+
+export function Toolbar({ paused, onPausedChange, speed, onSpeedChange, traffic, onTrafficChange }: Props) {
   return (
     <div className="toolbar">
       <button
@@ -29,6 +38,7 @@ export function Toolbar({ paused, onPausedChange, speed, onSpeedChange }: Props)
         {paused ? "Resume" : "Pause"}
       </button>
       <Segmented label="Speed" options={SPEEDS} value={speed} onChange={onSpeedChange} />
+      <Segmented label="Passengers" options={TRAFFIC} value={traffic} onChange={onTrafficChange} />
     </div>
   );
 }

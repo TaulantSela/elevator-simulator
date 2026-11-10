@@ -308,16 +308,20 @@
 /* ---------- Body: building + cabin panel ---------- */
 
 .elevator-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 340px) auto;
+  grid-template-areas:
+    "building cabin"
+    "building stats";
+  grid-template-rows: auto 1fr;
+  align-items: start;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.5rem 2rem;
   padding: 1.75rem 2rem 2rem;
 }
 
 .building {
-  flex: 0 1 340px;
+  grid-area: building;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--shaft-w);
   grid-auto-rows: var(--row-h);
@@ -329,7 +333,6 @@
   grid-column: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 0.6rem 0 1.1rem;
   border-radius: 16px;
   background: linear-gradient(135deg, var(--surface), rgba(30, 64, 175, 0.55));
@@ -353,7 +356,71 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* People waiting at a landing, and riding in the car. */
+.waiting {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-left: 0.7rem;
+}
+
+.person {
+  position: relative;
+  width: 6px;
+  height: 9px;
+  margin-top: 6px;
+  border-radius: 3px 3px 1px 1px;
+  background: currentColor;
+}
+
+.person::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 0.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.person.up {
+  color: var(--accent);
+}
+
+.person.down {
+  color: var(--warm);
+}
+
+.figures-more {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
+.riders {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.riders .person {
+  color: #1e293b;
+}
+
+.riders .figures-more {
+  font-size: 0.6rem;
+  color: #1e293b;
+}
+
 .hall-controls {
+  margin-left: auto;
   display: grid;
   grid-template-columns: repeat(2, 44px);
   gap: 0.45rem;
@@ -482,7 +549,7 @@
 /* ---------- Cabin panel ---------- */
 
 .cabin-panel {
-  flex: 0 0 auto;
+  grid-area: cabin;
   display: grid;
   gap: 1rem;
   justify-items: center;
@@ -576,6 +643,59 @@
   transform: scale(0.94);
 }
 
+/* ---------- Passenger stats ---------- */
+
+.traffic-stats {
+  grid-area: stats;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.text-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem 1.2rem;
+  margin: 0;
+}
+
+.stats-grid dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.stats-grid dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 button {
   font-family: inherit;
 }
@@ -639,6 +759,7 @@ button:focus-visible {
   }
 
   .elevator-body {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 1.25rem;
@@ -647,6 +768,18 @@ button:focus-visible {
 
   .building {
     flex: none;
+  }
+
+  .traffic-stats {
+    order: 2;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cabin-panel {
+    order: 3;
   }
 
   .cabin-panel {

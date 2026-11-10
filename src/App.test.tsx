@@ -79,3 +79,17 @@ test("2× speed halves the trip, and pausing freezes the car", () => {
   });
   expect(screen.getByText("Waiting at floor 2")).toBeInTheDocument();
 });
+
+test("passengers arrive, ride and show up in the stats", () => {
+  render(<App seed={5} />);
+  fireEvent.click(screen.getByRole("button", { name: "4×" }));
+  fireEvent.click(screen.getByRole("button", { name: "Busy" }));
+
+  act(() => {
+    jest.advanceTimersByTime(45_000); // three simulated minutes
+  });
+  const stats = within(screen.getByRole("region", { name: "Passengers" }));
+  const labels = stats.getAllByRole("term").map((term) => term.textContent);
+  const values = stats.getAllByRole("definition").map((value) => value.textContent);
+  expect(Number(values[labels.indexOf("Delivered")])).toBeGreaterThan(5);
+});
