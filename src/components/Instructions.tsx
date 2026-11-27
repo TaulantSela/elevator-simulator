@@ -29,6 +29,8 @@ let seenMarked = false;
  * instructions start collapsed. Collapsing them now would shift the layout
  * under the pointer, so this only affects later visits.
  */
+// Shares the module's storage helpers with the component; editing this file reloads instead of hot-reloading
+// eslint-disable-next-line react-refresh/only-export-components
 export function markInstructionsSeen() {
   if (seenMarked) return;
   seenMarked = true;
