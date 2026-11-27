@@ -3,11 +3,11 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import App from "./App";
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 test("renders the simulator waiting at the ground floor", () => {
@@ -25,7 +25,7 @@ test("a down call from above brings the car and opens its doors", () => {
 
   // Four floors of travel, then the doors finish opening.
   act(() => {
-    jest.advanceTimersByTime(4 * 1500 + 1100);
+    vi.advanceTimersByTime(4 * 1500 + 1100);
   });
   expect(screen.getByText("Doors open at floor 5")).toBeInTheDocument();
   expect(call).toHaveAttribute("aria-pressed", "false");
@@ -45,13 +45,13 @@ test("the close button skips the rest of the dwell", () => {
   render(<App />);
   fireEvent.click(screen.getByRole("button", { name: "Call elevator up from floor 1" }));
   act(() => {
-    jest.advanceTimersByTime(1500); // doors fully open, dwell running
+    vi.advanceTimersByTime(1500); // doors fully open, dwell running
   });
   expect(screen.getByText("Doors open at floor 1")).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Close doors" }));
   act(() => {
-    jest.advanceTimersByTime(1100);
+    vi.advanceTimersByTime(1100);
   });
   expect(screen.getByText("Waiting at floor 1")).toBeInTheDocument();
 });
@@ -62,20 +62,20 @@ test("2× speed halves the trip, and pausing freezes the car", () => {
   fireEvent.click(screen.getByRole("button", { name: "Go to floor 5" }));
 
   act(() => {
-    jest.advanceTimersByTime((4 * 1500 + 1100) / 2);
+    vi.advanceTimersByTime((4 * 1500 + 1100) / 2);
   });
   expect(screen.getByText("Doors open at floor 5")).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Go to floor 2" }));
   fireEvent.click(screen.getByRole("button", { name: "Pause" }));
   act(() => {
-    jest.advanceTimersByTime(60_000);
+    vi.advanceTimersByTime(60_000);
   });
   expect(screen.getByText("Paused · Doors open at floor 5")).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Resume" }));
   act(() => {
-    jest.advanceTimersByTime(60_000);
+    vi.advanceTimersByTime(60_000);
   });
   expect(screen.getByText("Waiting at floor 2")).toBeInTheDocument();
 });
@@ -86,7 +86,7 @@ test("passengers arrive, ride and show up in the stats", () => {
   fireEvent.click(screen.getByRole("button", { name: "Busy" }));
 
   act(() => {
-    jest.advanceTimersByTime(45_000); // three simulated minutes
+    vi.advanceTimersByTime(45_000); // three simulated minutes
   });
   const stats = within(screen.getByRole("region", { name: "Passengers" }));
   const labels = stats.getAllByRole("term").map((term) => term.textContent);

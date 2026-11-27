@@ -85,16 +85,19 @@ fixed steps, including twenty simulated minutes of busy traffic.
 
 ## Run locally
 
-Built with Create React App (`react-scripts` 5), React 18 and TypeScript. No
-environment variables needed.
+Built with Vite, React 19 and TypeScript, tested with Vitest. No environment
+variables needed.
 
 ```bash
 npm install
-npm start        # http://localhost:3000
+npm run dev      # http://localhost:3000
 ```
 
 | Command | What it does |
 | --- | --- |
-| `npm start` | Start the dev server on http://localhost:3000 |
-| `npm test` | Run the tests in watch mode (`CI=true npm test` runs them once) |
-| `npm run build` | Build the static site into `build/`, ready for Vercel or any static host |
+| `npm run dev` | Start the dev server on http://localhost:3000 |
+| `npm test` | Run the tests once (`npm run test:watch` re-runs them on changes) |
+| `npm run typecheck` | Type-check with TypeScript 7 |
+| `npm run lint` | Lint with ESLint |
+| `npm run build` | Type-check and build the static site into `dist/`, ready for Vercel or any static host |
+| `npm run preview` | Serve the built `dist/` locally |

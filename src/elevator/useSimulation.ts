@@ -53,6 +53,8 @@ export function useSimulation(options?: Parameters<typeof createSimulation>[0]) 
         lastFrameRef.current = null;
         return;
       }
+      // The animation loop schedules itself; tick exists by the time the next frame runs
+      // eslint-disable-next-line react-hooks/immutability
       frameRef.current = requestAnimationFrame(tick);
     },
     [commit]
